@@ -354,6 +354,7 @@ integer(kind=ip) :: iWriteNthSteps, iIntWriteNthSteps
 
 character(132_ip) :: cmd_call_G
 character(1024_ip) :: zFileName_G, zBFile_G, zSFile_G
+character(1024_ip) :: zOutDir_G  ! CL patch, Sept 1 2019
 integer(kind=ip) :: ioutInfo_G
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

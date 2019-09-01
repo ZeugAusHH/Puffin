@@ -120,7 +120,7 @@ contains
 
 ! Prepare filename
 
-    filename = ( trim(adjustl(zFilename_G)) // '_electrons_' // &
+    filename = ( trim(adjustl(zOutDir_G)) // trim(adjustl(zFilename_G)) // '_electrons_' // &
                  trim(adjustl(IntegerToString(igwr))) // '.h5' )
 
 
@@ -765,7 +765,7 @@ contains
 
 
 !    Print*,('Spatialdims: ' // trim(IntegerToString(numSpatialDims)))
-      filename = (trim(adjustl(zFilename_G)) // '_' // trim(adjustl(dsetname)) &
+      filename = (trim(adjustl(zOutDir_G)) // trim(adjustl(zFilename_G)) // '_' // trim(adjustl(dsetname)) &
           // '_' // trim(adjustl(IntegerToString(igwr))) // '.h5' )
       CALL h5open_f(error)
       CALL h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, error)
@@ -1506,7 +1506,7 @@ contains
     INTEGER(kind=IP), ALLOCATABLE :: numcelldata (:)  !< Dataset to write with numcells
     integer(kind=ip) :: error !< Local Error flag
     if (tProcInfo_G%qRoot) then
-      filename = ( trim(adjustl(zFilename_G)) // '_integrated_' &
+      filename = ( trim(adjustl(zOutDir_G)) // trim(adjustl(zFilename_G)) // '_integrated_' &
         //trim(adjustl(IntegerToString(igwr))) &
         // '.h5' )
       CALL h5open_f(error)
@@ -1592,7 +1592,7 @@ contains
     INTEGER     ::  arank = 1               !< Attribute Dataset rank
     if (tProcInfo_G%qRoot) then
       dims = size(writeData) ! Dataset dimensions
-      filename = ( trim(adjustl(zFilename_G)) // '_integrated_' &
+      filename = ( trim(adjustl(zOutDir_G)) // trim(adjustl(zFilename_G)) // '_integrated_' &
         //trim(adjustl(IntegerToString(igwr))) &
         // '.h5' )
       CALL h5open_f(error)

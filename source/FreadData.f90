@@ -241,6 +241,7 @@ subroutine read_in(zfilename, &
 
   INTEGER::ios
   CHARACTER(1024_IP) :: beam_file, seed_file, wr_file
+  CHARACTER(1024_IP) :: out_dir
   character(1024_IP) :: zDataFileName
   LOGICAL :: qOKL, qMatched !   TEMP VAR FOR NOW, SHOULD MAKE FOR EACH BEAM
 
@@ -294,7 +295,7 @@ namelist /mdata/ qOneD, qFieldEvolve, qElectronsEvolve, &
                  qFMesh_G, sKBetaXSF, sKBetaYSF, sRedistLen, &
                  iRedistStp, qscaled, nspinDX, nspinDY, qInitWrLat, qDumpEnd, &
                  wr_file, qMeasure, DFact, iDumpNthSteps, speout, meshType, &
-                 sPerWaves, ioutInfo
+                 sPerWaves, ioutInfo, out_dir
 
 
 ! Begin subroutine:
@@ -380,6 +381,8 @@ namelist /mdata/ qOneD, qFieldEvolve, qElectronsEvolve, &
   sRedistLen = -0.1_wp
   iRedistStp = -2_ip
 
+  out_dir = ''
+
 ! Open and read namelist
 
   open(168,file=zfilename, status='OLD', recl=80, delim='APOSTROPHE')
@@ -450,7 +453,13 @@ namelist /mdata/ qOneD, qFieldEvolve, qElectronsEvolve, &
   end if
 
 
-
+  ! CL patch (Sept 1, 2019): redirect output into data directory
+  ! Add trailing slash only when user supplied an output directory.
+  ! This ensures that this patch does not break input file decks that do not specify this parameter
+  if(out_dir /= '') then
+    out_dir = trim(adjustl(out_dir)) // '/'   ! add trailing slash. TODO: need to check if user did so already
+  end if
+  zOutDir_G = out_dir
 
 
 !!!!!!!!!!!!
