@@ -34,6 +34,20 @@ integer(kind=ipl) :: i
 real(kind=wp) :: locx, locy, locz2, &
                  x_in1, x_in2, y_in1, y_in2, z2_in1, z2_in2
 
+! Christoph Lechner, DESY, 2019-Oct-12
+logical :: xnode_OK, ynode_OK, z2node_OK
+integer(kind=ip) :: xnode_min, xnode_max, ynode_min, ynode_max, z2node_min, z2node_max
+
+  xnode_min = +1000000   ! very large numbers that have to exceed the typical mesh size
+  xnode_max = -1000000
+  xnode_OK  = .true.
+  ynode_min = +1000000
+  ynode_max = -1000000
+  ynode_OK  = .true.
+  z2node_min = +1000000
+  z2node_max = -1000000
+  z2node_OK  = .true.
+
 !$OMP DO PRIVATE(xnode, ynode, z2node, locx, locy, locz2, &
 !$OMP x_in1, x_in2, y_in1, y_in2, z2_in1, z2_in2)
   do i = 1, maxEl
@@ -72,11 +86,19 @@ real(kind=wp) :: locx, locy, locz2, &
       if ((xnode >= nspinDX) .or. (xnode < 1))then
         qInnerXYOK_G = .false.
         qPArrOK_G = .false.
+!
+        xnode_OK = .false.
+        if(xnode<xnode_min) xnode_min=xnode
+        if(xnode>xnode_max) xnode_max=xnode
       end if
 
       if ((ynode >= nspinDY) .or. (ynode < 1)) then
         qInnerXYOK_G = .false.
         qPArrOK_G = .false.
+!
+        ynode_OK = .false.
+        if(ynode<ynode_min) ynode_min=ynode
+        if(ynode>ynode_max) ynode_max=ynode
       end if
 
       if (fieldMesh == itemporal) then
@@ -89,6 +111,10 @@ real(kind=wp) :: locx, locy, locz2, &
 
       if (z2node >= bz2) then
         qPArrOK_G = .false.
+!
+        z2node_OK = .false.
+        if(z2node<z2node_min) z2node_min=z2node
+        if(z2node>z2node_max) z2node_max=z2node
       end if
 
 !                  Get weights for interpolant
@@ -106,6 +132,18 @@ real(kind=wp) :: locx, locy, locz2, &
   end do
 !$OMP END DO
 
+! Code by CL: Error with mesh detected, display diagnostic information
+  if (.not. qPArrOK_G) then
+    print*, 'Possible issue with mesh detected in getInterps_3D, &
+       &iStep=',iStep, ', mpi_rank=',tProcInfo_G%rank
+    print*, 'Issue caused by values in range:'
+    if(.not. xnode_OK)  print*, 'xnode_min=', xnode_min, ' xnode_max=',xnode_max, ' (nspinDX=',nspinDX,')'
+    if(.not. ynode_OK)  print*, 'ynode_min=', ynode_min, ' ynode_max=',ynode_max, ' (nspinDY=',nspinDY,')'
+    if(.not. z2node_OK) print*, 'z2node_min=', z2node_min, ' z2node_max=',z2node_max, ' (bz2=',bz2,')'
+    print*, '(If you do not see this message again for this integration step&
+       & the next try from the loop in subroutine UndSection was successful)'
+    print*, ''
+  end if
 
 end subroutine getInterps_3D
 

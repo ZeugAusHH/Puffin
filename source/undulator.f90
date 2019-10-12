@@ -196,6 +196,7 @@ end if
 
       igoes = 1_ip
       do
+        if(igoes>1) print*, 'iStep=',iStep,': retrying, now igoes=',igoes ! DBG msg added by C. Lechner (print only for reties)
         call rk4par(sZl,sStepSize,qDiffrctd)
         if (igoes>3_ip) exit
         if (.not. qPArrOK_G) then
