@@ -1893,6 +1893,7 @@ contains
 !    bz2 = ez2 + nint(4 * 4 * pi * sRho_G / sLengthOfElmZ2_G)   ! Boundary only 4 lambda_r long - so can only go ~ 3 periods
 
     bz2 = nint(bz2_len / sLengthOfElmZ2_G)  ! node index of final node in boundary
+    print*, 'in calcBuff: got bz2=',bz2
 
     if (fieldMesh == iPeriodic) then
 

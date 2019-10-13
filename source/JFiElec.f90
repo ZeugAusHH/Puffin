@@ -140,8 +140,8 @@ integer(kind=ip) :: xnode_min, xnode_max, ynode_min, ynode_max, z2node_min, z2no
     if(.not. xnode_OK)  print*, 'xnode_min=', xnode_min, ' xnode_max=',xnode_max, ' (nspinDX=',nspinDX,')'
     if(.not. ynode_OK)  print*, 'ynode_min=', ynode_min, ' ynode_max=',ynode_max, ' (nspinDY=',nspinDY,')'
     if(.not. z2node_OK) print*, 'z2node_min=', z2node_min, ' z2node_max=',z2node_max, ' (bz2=',bz2,')'
-    print*, '(If you do not see this message again for this integration step&
-       & the next try from the loop in subroutine UndSection was successful)'
+    print*, '(If you do not see this message again for integration step istep=',iStep,&
+       & 'then the next try from the loop in subroutine UndSection was successful)'
     print*, ''
   end if
 
