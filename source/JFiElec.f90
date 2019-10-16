@@ -37,16 +37,20 @@ real(kind=wp) :: locx, locy, locz2, &
 ! Christoph Lechner, DESY, 2019-Oct-12
 logical :: xnode_OK, ynode_OK, z2node_OK
 integer(kind=ip) :: xnode_min, xnode_max, ynode_min, ynode_max, z2node_min, z2node_max
+integer(kind=ip) :: xnode_nfail, ynode_nfail, z2node_nfail
 
   xnode_min = +1000000   ! very large numbers that have to exceed the typical mesh size
   xnode_max = -1000000
   xnode_OK  = .true.
+  xnode_nfail = 0
   ynode_min = +1000000
   ynode_max = -1000000
   ynode_OK  = .true.
+  ynode_nfail = 0
   z2node_min = +1000000
   z2node_max = -1000000
   z2node_OK  = .true.
+  z2node_nfail = 0
 
 !$OMP DO PRIVATE(xnode, ynode, z2node, locx, locy, locz2, &
 !$OMP x_in1, x_in2, y_in1, y_in2, z2_in1, z2_in2)
@@ -88,6 +92,7 @@ integer(kind=ip) :: xnode_min, xnode_max, ynode_min, ynode_max, z2node_min, z2no
         qPArrOK_G = .false.
 !
         xnode_OK = .false.
+        xnode_nfail = xnode_nfail+1
         if(xnode<xnode_min) xnode_min=xnode
         if(xnode>xnode_max) xnode_max=xnode
       end if
@@ -97,6 +102,7 @@ integer(kind=ip) :: xnode_min, xnode_max, ynode_min, ynode_max, z2node_min, z2no
         qPArrOK_G = .false.
 !
         ynode_OK = .false.
+        ynode_nfail = ynode_nfail+1
         if(ynode<ynode_min) ynode_min=ynode
         if(ynode>ynode_max) ynode_max=ynode
       end if
@@ -113,6 +119,7 @@ integer(kind=ip) :: xnode_min, xnode_max, ynode_min, ynode_max, z2node_min, z2no
         qPArrOK_G = .false.
 !
         z2node_OK = .false.
+        z2node_nfail = z2node_nfail+1
         if(z2node<z2node_min) z2node_min=z2node
         if(z2node>z2node_max) z2node_max=z2node
       end if
@@ -136,10 +143,11 @@ integer(kind=ip) :: xnode_min, xnode_max, ynode_min, ynode_max, z2node_min, z2no
   if (.not. qPArrOK_G) then
     print*, 'Possible issue with mesh detected in getInterps_3D, &
        &iStep=',iStep, ', mpi_rank=',tProcInfo_G%rank
+    print*, 'number of eparticles checked: ', procelectrons_G(1)
     print*, 'Issue caused by values in range:'
-    if(.not. xnode_OK)  print*, 'xnode_min=', xnode_min, ' xnode_max=',xnode_max, ' (nspinDX=',nspinDX,')'
-    if(.not. ynode_OK)  print*, 'ynode_min=', ynode_min, ' ynode_max=',ynode_max, ' (nspinDY=',nspinDY,')'
-    if(.not. z2node_OK) print*, 'z2node_min=', z2node_min, ' z2node_max=',z2node_max, ' (bz2=',bz2,')'
+    if(.not. xnode_OK)  print*, 'x: min=',xnode_min,   ' max=',xnode_max,  ' nfail=',xnode_nfail,  ' (nspinDX=',nspinDX,')'
+    if(.not. ynode_OK)  print*, 'y: min=',ynode_min,   ' max=',ynode_max,  ' nfail=',ynode_nfail,  ' (nspinDY=',nspinDY,')'
+    if(.not. z2node_OK) print*, 'z2: min=',z2node_min, ' max=',z2node_max, ' nfail=',z2node_nfail, ' (bz2=',bz2,')'
     print*, '(If you do not see this message again for integration step istep=',iStep,&
        & 'then the next try from the loop in subroutine UndSection was successful)'
     print*, ''
