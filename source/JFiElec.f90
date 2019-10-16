@@ -38,6 +38,7 @@ real(kind=wp) :: locx, locy, locz2, &
 logical :: xnode_OK, ynode_OK, z2node_OK
 integer(kind=ip) :: xnode_min, xnode_max, ynode_min, ynode_max, z2node_min, z2node_max
 integer(kind=ip) :: xnode_nfail, ynode_nfail, z2node_nfail
+logical :: current_particle_fail
 
   xnode_min = +1000000   ! very large numbers that have to exceed the typical mesh size
   xnode_max = -1000000
@@ -87,11 +88,14 @@ integer(kind=ip) :: xnode_nfail, ynode_nfail, z2node_nfail
 !        STOP
 !      end if
 
+      current_particle_fail=.false.
+
       if ((xnode >= nspinDX) .or. (xnode < 1))then
         qInnerXYOK_G = .false.
         qPArrOK_G = .false.
 !
         xnode_OK = .false.
+        current_particle_fail=.true.
         xnode_nfail = xnode_nfail+1
         if(xnode<xnode_min) xnode_min=xnode
         if(xnode>xnode_max) xnode_max=xnode
@@ -102,6 +106,7 @@ integer(kind=ip) :: xnode_nfail, ynode_nfail, z2node_nfail
         qPArrOK_G = .false.
 !
         ynode_OK = .false.
+        current_particle_fail=.true.
         ynode_nfail = ynode_nfail+1
         if(ynode<ynode_min) ynode_min=ynode
         if(ynode>ynode_max) ynode_max=ynode
@@ -119,9 +124,14 @@ integer(kind=ip) :: xnode_nfail, ynode_nfail, z2node_nfail
         qPArrOK_G = .false.
 !
         z2node_OK = .false.
+        current_particle_fail=.true.
         z2node_nfail = z2node_nfail+1
         if(z2node<z2node_min) z2node_min=z2node
         if(z2node>z2node_max) z2node_max=z2node
+      end if
+
+      if(current_particle_fail) then
+        print*, 'failing particle ', i
       end if
 
 !                  Get weights for interpolant
@@ -143,7 +153,7 @@ integer(kind=ip) :: xnode_nfail, ynode_nfail, z2node_nfail
   if (.not. qPArrOK_G) then
     print*, 'Possible issue with mesh detected in getInterps_3D, &
        &iStep=',iStep, ', mpi_rank=',tProcInfo_G%rank
-    print*, 'number of eparticles checked: ', procelectrons_G(1)
+    print*, 'number of particles checked: ', procelectrons_G(1)
     print*, 'Issue caused by values in range:'
     if(.not. xnode_OK)  print*, 'x: min=',xnode_min,   ' max=',xnode_max,  ' nfail=',xnode_nfail,  ' (nspinDX=',nspinDX,')'
     if(.not. ynode_OK)  print*, 'y: min=',ynode_min,   ' max=',ynode_max,  ' nfail=',ynode_nfail,  ' (nspinDY=',nspinDY,')'

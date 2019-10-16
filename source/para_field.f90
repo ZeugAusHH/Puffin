@@ -75,6 +75,10 @@ integer(kind=ip), parameter :: iElectronBased=1, &
 
 
 
+! C. Lechner (DESY), 20191016: dbg dump ID local to each MPI process
+integer(kind=wp) :: dbgdumpid_cl=0
+
+
 logical :: qStart_new
 
 contains
@@ -1863,8 +1867,14 @@ contains
     integer(kind=ip), allocatable :: drecar(:)
     integer :: error, req
 
+    integer :: kk
+
     integer statr(MPI_STATUS_SIZE)
     integer sendstat(MPI_STATUS_SIZE)
+
+    character(64_IP) :: fn_dbg_dump ! CL dbg code
+    character(64_IP) :: fn_dbg_dump_dumpno
+    character(64_IP) :: fn_dbg_dump_mpirank
 
     ! get buffer location
 
@@ -1876,6 +1886,22 @@ contains
 
       bz2_len = dz  ! distance in zbar until next rearrangement
       bz2_len = maxval(sElZ2_G + bz2_len * sp2)  ! predicted length in z2 needed needed in buffer for beam
+
+! C. Lechner (DESY) dbg code, 20191016
+      dbgdumpid_cl=dbgdumpid_cl+1
+      write(fn_dbg_dump_dumpno,*) dbgdumpid_cl
+      write(fn_dbg_dump_mpirank,*) tProcInfo_G%rank ! we have also iStep here
+      fn_dbg_dump = 'dump_calcBuff.' // trim(adjustl(fn_dbg_dump_mpirank)) // &
+                        & '.' // trim(adjustl(fn_dbg_dump_dumpno))
+      open(unit=987, file=fn_dbg_dump)
+!      print*,'-----'
+      do kk=1,iNumberElectrons_G
+         write(unit=987,fmt='(1PE20.12e3, 1PE20.12e3)') sElZ2_G(kk), sp2(kk)
+      end do
+!      print*,'-----'
+      close(unit=987)
+      print*, 'dumped dbg infos to ',fn_dbg_dump
+! end dump dbg code
 
 !    print*, 'bz2 length is...', bz2_len
 !    print*, 'max p2 is ', maxval(sp2)
@@ -1893,7 +1919,8 @@ contains
 !    bz2 = ez2 + nint(4 * 4 * pi * sRho_G / sLengthOfElmZ2_G)   ! Boundary only 4 lambda_r long - so can only go ~ 3 periods
 
     bz2 = nint(bz2_len / sLengthOfElmZ2_G)  ! node index of final node in boundary
-    print*, 'in calcBuff: got bz2=',bz2
+    print*, 'calcBuff: dz=',dz, ', bz2_len=',bz2_len, ', sLengthOfElmZ2_G=',sLengthOfElmZ2_G
+    print*, 'in calcBuff: got bz2=',bz2, ' (before rounding',bz2_len / sLengthOfElmZ2_G,')'
 
     if (fieldMesh == iPeriodic) then
 
