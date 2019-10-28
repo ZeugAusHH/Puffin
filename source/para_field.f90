@@ -1896,7 +1896,7 @@ contains
       open(unit=987, file=fn_dbg_dump)
 !      print*,'-----'
       do kk=1,iNumberElectrons_G
-         write(unit=987,fmt='(1PE20.12e3, 1PE20.12e3)') sElZ2_G(kk), sp2(kk)
+         write(unit=987,fmt='(1PE20.12e3, 1PE20.12e3, 1PE20.12e3)') sElZ2_G(kk), sElGam_G(kk), sp2(kk)
       end do
 !      print*,'-----'
       close(unit=987)
